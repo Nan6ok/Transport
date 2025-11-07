@@ -1,0 +1,20 @@
+import json
+
+# 模擬生成全香港巴士/港鐵路線
+all_routes=[]
+for bus_type in ["九巴","城巴","龍運巴士","紅 Van","綠 Van","輕鐵","港鐵","港鐵巴士","Shuttle Bus"]:
+    for i in range(1,101):  # 假設每種交通 100 條路線
+        route={
+            "id": f"{bus_type}{i}",
+            "type": bus_type,
+            "route": f"{bus_type}{i}號",
+            "lat": 22.3 + i*0.001,
+            "lng": 114.1 + i*0.001,
+            "status": "行駛中"
+        }
+        all_routes.append(route)
+
+with open("all_routes.json","w",encoding="utf-8") as f:
+    json.dump(all_routes,f,ensure_ascii=False,indent=2)
+
+print("生成完成！共", len(all_routes), "條路線")
