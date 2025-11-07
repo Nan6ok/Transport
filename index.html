@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>香港交通 App Prototype</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+</head>
+<body class="light">
+<header>
+<h1 data-i18n="welcome">歡迎使用香港交通 App</h1>
+<div id="controls">
+<select id="mode-select">
+<option value="all" selected>全部交通工具</option>
+<option value="巴士">巴士</option>
+<option value="紅 Van">紅 Van</option>
+<option value="綠 Van">綠 Van</option>
+<option value="輕鐵">輕鐵</option>
+<option value="港鐵">港鐵</option>
+<option value="港鐵巴士">港鐵巴士</option>
+<option value="Shuttle Bus">Shuttle Bus</option>
+</select>
+<select id="route-select"><option value="all">全部路線</option></select>
+<button id="settings-btn">⚙️</button>
+</div>
+</header>
+
+<div id="map"></div>
+
+<section id="bus-info">
+<h2 data-i18n="busStatus">巴士狀態</h2>
+<ul id="bus-list"></ul>
+</section>
+
+<section id="current-bus">
+<h2 data-i18n="currentBus">目前巴士</h2>
+<div id="current-bus-text">無</div>
+</section>
+
+<button id="ask-ai">🧠 問 AI</button>
+<div id="ai-chat" class="hidden">
+<textarea id="ai-input" placeholder="請問你想查咩？例如：最快點去尖沙咀"></textarea>
+<button id="ai-send">發送</button>
+<div id="ai-response"></div>
+</div>
+
+<div id="settings-modal" class="hidden">
+<h3>Settings</h3>
+<label data-i18n="language">語言:
+<select id="language-select">
+<option value="en">English</option>
+<option value="zh_HK">繁體中文</option>
+<option value="zh_CN">简体中文</option>
+<option value="es">Español</option>
+</select>
+</label>
+<label data-i18n="theme">主題:
+<select id="theme-select">
+<option value="light">Light</option>
+<option value="dark">Dark</option>
+<option value="custom">Custom</option>
+<option value="auto">Auto</option>
+</select>
+</label>
+<input type="color" id="custom-bg" value="#ffffff">
+<button id="close-settings">Close</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
