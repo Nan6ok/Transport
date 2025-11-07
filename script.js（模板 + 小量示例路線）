@@ -1,0 +1,94 @@
+// --- 多語言 ---
+var i18n={
+en:{welcome:"Welcome",busStatus:"Bus Status",currentBus:"Current Bus",language:"Language",theme:"Theme"},
+zh_HK:{welcome:"歡迎",busStatus:"巴士狀態",currentBus:"目前巴士",language:"語言",theme:"主題"},
+zh_CN:{welcome:"欢迎",busStatus:"公交状态",currentBus:"当前巴士",language:"语言",theme:"主题"},
+es:{welcome:"Bienvenido",busStatus:"Estado del Bus",currentBus:"Bus Actual",language:"Idioma",theme:"Tema"}
+};
+function setLanguage(lang){
+document.querySelectorAll('[data-i18n]').forEach(el=>{
+let key=el.getAttribute('data-i18n');
+if(i18n[lang]&&i18n[lang][key]) el.textContent=i18n[lang][key];
+});
+}
+
+// --- 地圖初始化 ---
+var map=L.map('map').setView([22.3964,114.1095],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+
+// --- 模擬交通工具資料（少量示例） ---
+var transports=[
+{id:1,type:'巴士',route:'九巴1號',lat:22.396,lng:114.109,status:'行駛中'},
+{id:2,type:'紅 Van',route:'紅Van1號',lat:22.400,lng:114.120,status:'等紅燈'},
+{id:3,type:'港鐵',route:'荃灣線',lat:22.410,lng:114.130,status:'行駛中'},
+{id:4,type:'輕鐵',route:'505',lat:22.420,lng:114.140,status:'上落客'},
+{id:5,type:'Shuttle Bus',route:'機場→中環',lat:22.430,lng:114.150,status:'行駛中'},
+{id:6,type:'港鐵巴士',route:'沙田→大圍',lat:22.425,lng:114.145,status:'行駛中'}
+];
+var transportMarkers=[];
+transports.forEach(t=>{
+let m=L.circleMarker([t.lat,t.lng],{radius:8,color:t.type==='港鐵'? (t.route==='荃灣線'?'red':t.route==='觀塘線'?'green':'blue'):'blue'}).addTo(map);
+m.bindPopup(`<b>${t.type} ${t.route}</b><br>狀態: ${t.status}`);
+transportMarkers.push(m);
+});
+
+var selectedMode=null;
+var selectedRoute=null;
+
+// --- 更新顯示 ---
+function updateMapDisplay(){
+transports.forEach((t,i)=>{
+let show=false;
+if(!selectedMode||t.type===selectedMode){
+if(!selectedRoute||t.route===selectedRoute) show=true;
+}
+if(show){
+transportMarkers[i].setLatLng([t.lat,t.lng]).addTo(map).bindPopup(`<b>${t.type} ${t.route}</b><br>狀態: ${t.status}`);
+}else map.removeLayer(transportMarkers[i]);
+});
+}
+
+// --- 模擬移動 ---
+setInterval(()=>{
+transports.forEach(t=>{
+t.lat+= (Math.random()-0.5)*0.001;
+t.lng+= (Math.random()-0.5)*0.001;
+});
+updateMapDisplay();
+},100);
+
+// --- Mode / Route 篩選 ---
+document.getElementById('mode-select').addEventListener('change',e=>{
+selectedMode=e.target.value==='all'?null:e.target.value;
+updateMapDisplay();
+});
+document.getElementById('route-select').addEventListener('change',e=>{
+selectedRoute=e.target.value==='all'?null:e.target.value;
+updateMapDisplay();
+});
+
+// --- Settings ---
+document.getElementById('settings-btn').addEventListener('click',()=>{document.getElementById('settings-modal').classList.remove('hidden');});
+document.getElementById('close-settings').addEventListener('click',()=>{document.getElementById('settings-modal').classList.add('hidden');});
+document.getElementById('language-select').addEventListener('change',e=>{setLanguage(e.target.value);});
+document.getElementById('theme-select').addEventListener('change',e=>{
+let mode=e.target.value;
+if(mode==='auto'){mode=(new Date().getHours()>=6&&new Date().getHours()<18)?'light':'dark';}
+document.body.className=mode;
+});
+document.getElementById('custom-bg').addEventListener('input',e=>{
+document.body.style.setProperty('--custom-bg-color',e.target.value);
+document.body.className='custom';
+});
+
+// --- AI 問我功能 ---
+document.getElementById("ask-ai").addEventListener("click",()=>{
+document.getElementById("ai-chat").classList.toggle("hidden");
+});
+document.getElementById("ai-send").addEventListener("click",()=>{
+const q=document.getElementById("ai-input").value.toLowerCase();
+const res=document.getElementById("ai-response");
+if(q.includes("旺角")) res.textContent="最快路線建議：乘搭港鐵荃灣線前往旺角站（約12分鐘）";
+else if(q.includes("班車")) res.textContent="今日最後一班車為 23:45，由中環開出。";
+else res.textContent="暫時未有資料，但你可以選擇交通模式查看更多路線。";
+});
