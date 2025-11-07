@@ -1,0 +1,57 @@
+// --- Leaflet 地圖初始化 ---
+var map = L.map('map').setView([22.3964,114.1095],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+
+// --- transports 會被 Python 自動生成的 transports.js 替換 ---
+/* 
+var transports = [ ... ]; // 自動生成
+var transportMarkers = [];
+transports.forEach(t=>{
+  let m=L.circleMarker([t.lat,t.lng],{radius:6,color:'blue'}).addTo(map);
+  m.bindPopup(`<b>${t.type} ${t.route}</b><br>狀態: ${t.status}`);
+  transportMarkers.push(m);
+});
+*/
+
+// --- Mode / Route 選擇 ---
+var selectedMode = null;
+var selectedRoute = null;
+
+function updateMapDisplay(){
+  transportMarkers.forEach((m,i)=>{
+    let t = transports[i];
+    let show = (!selectedMode || t.type===selectedMode) && (!selectedRoute || t.route===selectedRoute);
+    if(show) map.addLayer(m); else map.removeLayer(m);
+  });
+}
+
+document.getElementById('mode-select').addEventListener('change',e=>{
+  selectedMode = e.target.value==='all'?null:e.target.value;
+  updateMapDisplay();
+});
+
+document.getElementById('route-select').addEventListener('change',e=>{
+  selectedRoute = e.target.value==='all'?null:e.target.value;
+  updateMapDisplay();
+});
+
+// --- 模擬動態移動 ---
+setInterval(()=>{
+  transports.forEach(t=>{
+    t.lat += (Math.random()-0.5)*0.0005;
+    t.lng += (Math.random()-0.5)*0.0005;
+  });
+  updateMapDisplay();
+},100);
+
+// --- AI 問我系統 ---
+document.getElementById("ask-ai").addEventListener("click",()=>{
+  document.getElementById("ai-chat").classList.toggle("hidden");
+});
+document.getElementById("ai-send").addEventListener("click",()=>{
+  const q = document.getElementById("ai-input").value.toLowerCase();
+  const res = document.getElementById("ai-response");
+  if(q.includes("旺角")) res.textContent="最快路線建議：乘搭港鐵荃灣線前往旺角站（約12分鐘）";
+  else if(q.includes("班車")) res.textContent="今日最後一班車為 23:45，由中環開出。";
+  else res.textContent="暫時未有資料，但你可以選擇交通模式查看更多路線。";
+});
